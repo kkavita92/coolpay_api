@@ -3,6 +3,7 @@ require 'net/http'
 require 'uri'
 
 require_relative 'lib/request'
+require_relative 'lib/http_client'
 
 class CoolPay < Sinatra::Base
   enable :sessions
@@ -22,28 +23,22 @@ class CoolPay < Sinatra::Base
         "username": ENV['USERNAME'],
         "apikey": ENV['API_KEY']
     }
-    uri = URI.parse('https://coolpay.herokuapp.com/api/login')
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    req = Request.build_post(uri.request_uri, credentials.to_json)
-    response = http.request(req)
+    client = HTTPClient.new('https://coolpay.herokuapp.com/api/login')
+    req = Request.build_post(client.request_uri, credentials.to_json)
+    response = client.handle_request(req)
     session[:token] = JSON.parse(response.body)['token']
     redirect to '/home'
   end
 
   get '/home' do
-    uri = URI.parse('https://coolpay.herokuapp.com/api/recipients')
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    req = Request.build_get(uri.request_uri, token)
-    response = http.request(req)
+    client = HTTPClient.new('https://coolpay.herokuapp.com/api/recipients')
+    req = Request.build_get(client.request_uri, token)
+    response = client.handle_request(req)
     @recipients = JSON.parse(response.body)['recipients']
 
-    uri = URI.parse('https://coolpay.herokuapp.com/api/payments')
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    req = Request.build_get(uri.request_uri, token)
-    response = http.request(req)
+    client = HTTPClient.new('https://coolpay.herokuapp.com/api/payments')
+    req = Request.build_get(client.request_uri, token)
+    response = client.handle_request(req)
     @payments = JSON.parse(response.body)['payments']
     erb :home
   end
@@ -55,11 +50,9 @@ class CoolPay < Sinatra::Base
       }
     }
 
-    uri = URI.parse("https://coolpay.herokuapp.com/api/recipients?name=")
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    req = Request.build_post(uri.request_uri, body.to_json, token)
-    response = http.request(req)
+    client = HTTPClient.new("https://coolpay.herokuapp.com/api/recipients?name=")
+    req = Request.build_post(client.request_uri, body.to_json, token)
+    response = client.handle_request(req)
     redirect to '/home'
   end
 
@@ -72,11 +65,9 @@ class CoolPay < Sinatra::Base
       }
     }
 
-    uri = URI.parse("https://coolpay.herokuapp.com/api/payments")
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    req = Request.build_post(uri.request_uri, body.to_json, token)
-    response = http.request(req)
+    client = HTTPClient.new("https://coolpay.herokuapp.com/api/payments")
+    req = Request.build_post(client.request_uri, body.to_json, token)
+    esponse = client.handle_request(req)
     redirect to '/home'
   end
 
