@@ -1,6 +1,15 @@
-<%= @recipients %>
-
 <form action="/recipient" method="post">
   <input type="text" name="new_recipient">
   <input type="submit" value="Create">
 </form>
+
+<% @recipients.each do |recipient| %>
+  <%= recipient["name"] %>
+  <form action="/payment" method="post">
+    <input type="hidden" name="id" value="<%= recipient['id'] %>">
+    <input type="number" name="amount" required>
+    <input type="submit" value="Make Payment" />
+  </form>
+<% end %>
+
+<%= @payments %>
