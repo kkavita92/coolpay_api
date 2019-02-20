@@ -2,6 +2,8 @@ require 'sinatra/base'
 require 'net/http'
 require 'uri'
 
+require_relative 'lib/request'
+
 class CoolPay < Sinatra::Base
   enable :sessions
 
@@ -23,32 +25,25 @@ class CoolPay < Sinatra::Base
     uri = URI.parse('https://coolpay.herokuapp.com/api/login')
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
-    req = Net::HTTP::Post.new(uri.request_uri, {'Content-Type': 'application/json'})
-    req.body = credentials.to_json
+    req = Request.build_post(uri.request_uri, credentials.to_json)
     response = http.request(req)
     session[:token] = JSON.parse(response.body)['token']
     redirect to '/home'
   end
 
   get '/home' do
-    p token
-
     uri = URI.parse('https://coolpay.herokuapp.com/api/recipients')
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
-    req = Net::HTTP::Get.new(uri.request_uri, {'Content-Type': 'application/json'})
-    req['Authorization'] = "Bearer #{token}"
+    req = Request.build_get(uri.request_uri, token)
     response = http.request(req)
-    p JSON.parse(response.body)
     @recipients = JSON.parse(response.body)['recipients']
 
     uri = URI.parse('https://coolpay.herokuapp.com/api/payments')
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
-    req = Net::HTTP::Get.new(uri.request_uri, {'Content-Type': 'application/json'})
-    req['Authorization'] = "Bearer #{token}"
+    req = Request.build_get(uri.request_uri, token)
     response = http.request(req)
-    p JSON.parse(response.body)
     @payments = JSON.parse(response.body)['payments']
     erb :home
   end
@@ -60,14 +55,11 @@ class CoolPay < Sinatra::Base
       }
     }
 
-    @uri = URI.parse("https://coolpay.herokuapp.com/api/recipients?name=")
-    http = Net::HTTP.new(@uri.host, @uri.port)
+    uri = URI.parse("https://coolpay.herokuapp.com/api/recipients?name=")
+    http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
-    req = Net::HTTP::Post.new(@uri.request_uri, {'Content-Type': 'application/json'})
-    req['Authorization'] = "Bearer #{token}"
-    req.body = body.to_json
+    req = Request.build_post(uri.request_uri, body.to_json, token)
     response = http.request(req)
-    p JSON.parse(response.body)
     redirect to '/home'
   end
 
@@ -80,12 +72,10 @@ class CoolPay < Sinatra::Base
       }
     }
 
-    @uri = URI.parse("https://coolpay.herokuapp.com/api/payments")
-    http = Net::HTTP.new(@uri.host, @uri.port)
+    uri = URI.parse("https://coolpay.herokuapp.com/api/payments")
+    http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
-    req = Net::HTTP::Post.new(@uri.request_uri, {'Content-Type': 'application/json'})
-    req['Authorization'] = "Bearer #{token}"
-    req.body = body.to_json
+    req = Request.build_post(uri.request_uri, body.to_json, token)
     response = http.request(req)
     redirect to '/home'
   end
