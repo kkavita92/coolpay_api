@@ -30,15 +30,36 @@ class CoolPay < Sinatra::Base
     redirect to '/home'
   end
 
-  get '/home' do  
+  get '/home' do
+    p token
+
     uri = URI.parse('https://coolpay.herokuapp.com/api/recipients')
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     req = Net::HTTP::Get.new(uri.request_uri, {'Content-Type': 'application/json'})
     req['Authorization'] = "Bearer #{token}"
     response = http.request(req)
+    p JSON.parse(response.body)
     @recipients = JSON.parse(response.body)['recipients']
     erb :home
+  end
+
+  post '/recipient' do
+    body = {
+      "recipient": {
+        "name": params[:new_recipient]
+      }
+    }
+
+    @uri = URI.parse("https://coolpay.herokuapp.com/api/recipients?name=")
+    http = Net::HTTP.new(@uri.host, @uri.port)
+    http.use_ssl = true
+    req = Net::HTTP::Post.new(@uri.request_uri, {'Content-Type': 'application/json'})
+    req['Authorization'] = "Bearer #{token}"
+    req.body = body.to_json
+    response = http.request(req)
+    p JSON.parse(response.body)
+    redirect to '/home'
   end
 
 
