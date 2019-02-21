@@ -1,0 +1,29 @@
+body {
+  padding-top: 5rem;
+  font-family: 'Quicksand', sans-serif;
+}
+.coolpay-header {
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.create-recipient {
+  background-color: black;
+  color: white;
+  padding: 30px;
+  margin-bottom: 30px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.btn-group-vertical>.btn, .btn-group>.btn {
+  margin: 5px;
+}
+
+#confirm-button {
+  margin-top: 15px;
+}
+
+#payment-history {
+  font-weight: bolder;
+}

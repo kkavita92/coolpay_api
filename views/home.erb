@@ -1,15 +1,82 @@
-<form action="/recipient" method="post">
-  <input type="text" name="new_recipient">
-  <input type="submit" value="Create">
-</form>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<% @recipients.each do |recipient| %>
-  <%= recipient["name"] %>
-  <form action="/payment" method="post">
-    <input type="hidden" name="id" value="<%= recipient['id'] %>">
-    <input type="number" name="amount" required>
-    <input type="submit" value="Make Payment" />
-  </form>
-<% end %>
+  	<title>Fakebook: Coolpay</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="<%= url("/style.css")%>">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+  </head>
+  <body>
+    <main role="main" class="container">
 
-<%= @payments %>
+      <div class="coolpay-header">
+        <h1>CoolPay</h1>
+        <p class="lead">Welcome to CoolPay.<br> The magical way to transfer money to all your friends.</p>
+      </div>
+
+      <div class="row">
+        <!-- Recipients -->
+        <div class="col-md-6">
+          <!-- Creating new recipient -->
+          <div class="create-recipient">
+            <h3>Create new payee</h3><br>
+            <form action="/recipient" method="post">
+              <input type="text" class="form-control" name="new_recipient">
+              <button type="submit" id="confirm-button" class="btn btn-light">Confirm</button>
+            </form>
+          </div>
+          <!-- List of recipients -->
+          <h3><u>Payees</u></h3>
+          <br>
+          <% @recipients.each do |recipient| %>
+            <div class="dropdown btn-group">
+              <button class="btn btn-outline-dark dropdown-toggle" type="button" id="paymentDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <%= recipient["name"] %>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="paymentDropdown">
+                <form action="/payment" method="post" class="px-4 py-3">
+                  <div class="form-group">
+                    <input type="hidden" name="id" value="<%= recipient['id'] %>">
+                    <label for="amount">Amount</label>
+                    <input type="number" class="form-control" name="amount" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Make payment</button>
+                </form>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <!--Payments -->
+        <div class="col-md-6">
+          <h5 id="payment-history">Payment History</h5>
+          <ul class="list-group">
+            <% @payments.reverse.each do |payment| %>
+              <% payee = @recipients.select{ |recipient| recipient["id"] == payment["recipient_id"] }.first %>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <%= payee["name"] %> - <%= payment["amount"] %> <%= payment["currency"] %>
+                <% if payment["status"] == "paid" %>
+                  <span class="badge badge-success badge-pill">YAY</span>
+                <% elsif payment["status"] == "failed" %>
+                  <span class="badge badge-danger badge-pill">NAY</span>
+                <% else %>
+                  <span class="badge badge-secondary badge-pill">...</span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- JS scripts -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+  </body>
+</html>
