@@ -3,14 +3,14 @@ require 'net/http'
 class Request
   CONTENT_TYPE_HEADER = {'Content-Type': 'application/json'}
 
-  def self.build_post(request_uri, body=nil, token=nil)
+  def self.build_post(request_uri, body, token)
     req = Net::HTTP::Post.new(request_uri, CONTENT_TYPE_HEADER)
-    req.body = body
+    req.body = body.to_json
     self.set_token(req, token)
     req
   end
 
-  def self.build_get(request_uri, token=nil)
+  def self.build_get(request_uri, token)
     req = Net::HTTP::Get.new(request_uri, CONTENT_TYPE_HEADER)
     self.set_token(req, token)
     req

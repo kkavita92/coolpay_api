@@ -4,11 +4,16 @@ require 'uri'
 
 require_relative 'lib/request'
 require_relative 'lib/http_client'
+require_relative 'lib/api'
 
 class CoolPay < Sinatra::Base
   enable :sessions
 
   helpers do
+    def api
+      @api = Api.new('https://coolpay.herokuapp.com/api')
+    end
+
     def token
       @token ||= session[:token]
     end
@@ -20,25 +25,20 @@ class CoolPay < Sinatra::Base
 
   post '/authenticate' do
     credentials = {
-        "username": ENV['USERNAME'],
-        "apikey": ENV['API_KEY']
+        "username": "",
+        "apikey": ""
     }
-    client = HTTPClient.new('https://coolpay.herokuapp.com/api/login')
-    req = Request.build_post(client.request_uri, credentials.to_json)
-    response = client.handle_request(req)
+
+    response = api.handle_post_request('/login', credentials)
     session[:token] = JSON.parse(response.body)['token']
     redirect to '/home'
   end
 
   get '/home' do
-    client = HTTPClient.new('https://coolpay.herokuapp.com/api/recipients')
-    req = Request.build_get(client.request_uri, token)
-    response = client.handle_request(req)
+    response = api.handle_get_request('/recipients', token)
     @recipients = JSON.parse(response.body)['recipients']
 
-    client = HTTPClient.new('https://coolpay.herokuapp.com/api/payments')
-    req = Request.build_get(client.request_uri, token)
-    response = client.handle_request(req)
+    response = api.handle_get_request('/payments', token)
     @payments = JSON.parse(response.body)['payments']
     erb :home
   end
@@ -50,9 +50,7 @@ class CoolPay < Sinatra::Base
       }
     }
 
-    client = HTTPClient.new("https://coolpay.herokuapp.com/api/recipients?name=")
-    req = Request.build_post(client.request_uri, body.to_json, token)
-    response = client.handle_request(req)
+    api.handle_post_request('/recipients?name=', body, token)
     redirect to '/home'
   end
 
@@ -65,9 +63,7 @@ class CoolPay < Sinatra::Base
       }
     }
 
-    client = HTTPClient.new("https://coolpay.herokuapp.com/api/payments")
-    req = Request.build_post(client.request_uri, body.to_json, token)
-    esponse = client.handle_request(req)
+    api.handle_post_request('/payments', body, token)
     redirect to '/home'
   end
 

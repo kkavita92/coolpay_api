@@ -4,8 +4,9 @@ require './lib/request'
 
   describe('#build_post') do
     before do
-      @body = {"username": "username","apikey": "apikey"}.to_json
-      @request = described_class.build_post("/", @body)
+      @body = {"username": "username","apikey": "apikey"}
+      @token = "xxxxxx"
+      @request = described_class.build_post("/", @body, @token)
     end
 
     it('creates a POST request') do
@@ -13,8 +14,14 @@ require './lib/request'
     end
 
     it('request has credentials in its body') do
-      expect(@request.body).to eq(@body)
+      expect(@request.body['username']).to eq('username')
+      expect(@request.body['apikey']).to eq('apikey')
     end
+
+    it('request has token in its body') do
+      expect(@request['Authorization']).to eq("Bearer #{@token}")
+    end
+  end
 
     describe('#build_get') do
       before do
@@ -30,5 +37,4 @@ require './lib/request'
         expect(@request['Authorization']).to eq("Bearer #{@token}")
       end
     end
-  end
 end
