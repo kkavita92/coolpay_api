@@ -13,6 +13,13 @@ API_KEY = "API_KEY"
 * Run `rackup`.
 * Go to localhost:9292 and £££.
 
+## Technologies Used
+
+* Ruby
+* Sinatra
+* RSpec 
+* Bootstrap
+
 ## Tests
 
 Run `rspec` to run the unit and feature tests. Feature testing is nowhere close to as thorough as it needs to be due to time constraints.
