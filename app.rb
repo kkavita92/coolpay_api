@@ -29,10 +29,10 @@ class CoolPay < Sinatra::Base
   end
 
   get '/home' do
-    response = api.handle_get_request('/recipients', token=token)
+    response = api.handle_get_request('/recipients', token)
     @recipients = JSON.parse(response.body)['recipients']
 
-    response = api.handle_get_request('/payments', token=token)
+    response = api.handle_get_request('/payments', token)
     @payments = JSON.parse(response.body)['payments']
     erb :home
   end
@@ -44,7 +44,7 @@ class CoolPay < Sinatra::Base
       }
     }
 
-    api.handle_post_request('/recipients?name=', body=body, token=token)
+    api.handle_post_request('/recipients?name=', body, token)
     redirect to '/home'
   end
 
@@ -57,7 +57,7 @@ class CoolPay < Sinatra::Base
       }
     }
 
-    api.handle_post_request('/payments', body=body, token=token)
+    api.handle_post_request('/payments', body, token)
     redirect to '/home'
   end
 

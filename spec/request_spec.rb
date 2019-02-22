@@ -1,6 +1,6 @@
-require './lib/request'
+require './lib/http_request'
 
- describe Request do
+ describe HTTPRequest do
 
   describe('#build_post') do
     before do
