@@ -1,11 +1,15 @@
 require_relative './request'
 require_relative './http_client'
+require_relative './credentials'
 
 class Api
-  def initialize (api_url, http_client = HTTPClient, request = Request)
+  attr_accessor :credentials
+  
+  def initialize (api_url, http_client = HTTPClient, request = Request, credentials = Credentials)
     @url = api_url
     @http_client = http_client
     @request = request
+    @credentials = credentials.fetch
   end
 
   def handle_get_request(path, token=nil)

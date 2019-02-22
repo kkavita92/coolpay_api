@@ -1,9 +1,8 @@
 require 'sinatra/base'
 require 'net/http'
 require 'uri'
+require 'dotenv/load'
 
-require_relative 'lib/request'
-require_relative 'lib/http_client'
 require_relative 'lib/api'
 
 class CoolPay < Sinatra::Base
@@ -24,12 +23,7 @@ class CoolPay < Sinatra::Base
   end
 
   post '/authenticate' do
-    credentials = {
-        "username": "",
-        "apikey": ""
-    }
-
-    response = api.handle_post_request('/login', credentials)
+    response = api.handle_post_request('/login', api.credentials)
     session[:token] = JSON.parse(response.body)['token']
     redirect to '/home'
   end
