@@ -23,16 +23,16 @@ class CoolPay < Sinatra::Base
   end
 
   post '/authenticate' do
-    response = api.handle_post_request('/login', api.credentials)
+    response = api.handle_post_request('/login', body=api.credentials)
     session[:token] = JSON.parse(response.body)['token']
     redirect to '/home'
   end
 
   get '/home' do
-    response = api.handle_get_request('/recipients', token)
+    response = api.handle_get_request('/recipients', token=token)
     @recipients = JSON.parse(response.body)['recipients']
 
-    response = api.handle_get_request('/payments', token)
+    response = api.handle_get_request('/payments', token=token)
     @payments = JSON.parse(response.body)['payments']
     erb :home
   end
@@ -44,7 +44,7 @@ class CoolPay < Sinatra::Base
       }
     }
 
-    api.handle_post_request('/recipients?name=', body, token)
+    api.handle_post_request('/recipients?name=', body=body, token=token)
     redirect to '/home'
   end
 
@@ -57,7 +57,7 @@ class CoolPay < Sinatra::Base
       }
     }
 
-    api.handle_post_request('/payments', body, token)
+    api.handle_post_request('/payments', body=body, token=token)
     redirect to '/home'
   end
 

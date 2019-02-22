@@ -1,6 +1,6 @@
 require 'net/http'
 
-class Request
+class HTTPRequest
   CONTENT_TYPE_HEADER = {'Content-Type': 'application/json'}
 
   def self.build_post(request_uri, body, token)
